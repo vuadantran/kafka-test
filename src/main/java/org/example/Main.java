@@ -34,7 +34,7 @@ public class Main {
 //        );
 
         List<KafkaMessage> msgs = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 1; i++) {
             String a = "Text " + i;
             msgs.add(new KafkaMessage(a));
         }

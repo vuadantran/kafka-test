@@ -1,7 +1,10 @@
 package org.http.handler;
 
 import okhttp3.*;
+import org.example.KafkaProcessing;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -11,9 +14,10 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class HttpDemo {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpDemo.class);
 
     public static final int MAX_CONNECTION_TIME_OUT = 60;
-    private static final String BASE_URL = "https://httpbin.org/user-agent";
+    private static final String BASE_URL = "http://eth-dev.inspirelab.io:3500/eth/v1/node/syncing";
     OkHttpClient client = this.createHttpClient();
 
     private OkHttpClient createHttpClient() {
@@ -21,7 +25,7 @@ public class HttpDemo {
                 .retryOnConnectionFailure(true)
                 .connectTimeout(MAX_CONNECTION_TIME_OUT, TimeUnit.SECONDS)
                 .readTimeout(MAX_CONNECTION_TIME_OUT, TimeUnit.SECONDS)
-//                .connectionPool(new ConnectionPool(10000,5, TimeUnit.MINUTES))
+                .connectionPool(new ConnectionPool(10000,5, TimeUnit.MINUTES))
                 .writeTimeout(MAX_CONNECTION_TIME_OUT, TimeUnit.SECONDS)
 //                .addInterceptor(new LoggingInterceptor())
 //                .addNetworkInterceptor(new LoggingInterceptor());
@@ -30,34 +34,36 @@ public class HttpDemo {
     }
 
     public void demo() throws IOException {
+        Request request = new Request.Builder()
+                .url(BASE_URL)
+                .build();
+
         for (int i = 0; i < 2; i++) {
-            System.out.println("Request " + i);
-            Request request = new Request.Builder()
-                    .url(BASE_URL)
-                    .build();
+            LOGGER.info("Request " + i);
 
             client.newCall(request).execute();
 
             Call call = client.newCall(request);
             Response response = call.execute();
 
-//            System.out.println("Res: " + response.body().string());
+            LOGGER.info("Res: " + response.body().string());
         }
     }
 }
 
 class LoggingInterceptor implements Interceptor {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoggingInterceptor.class);
     @Override public Response intercept(Interceptor.Chain chain) throws IOException {
         Request request = chain.request();
 
         long t1 = System.nanoTime();
-        System.out.println(String.format("Sending request %s on %s%n%s",
+        LOGGER.info(String.format("Sending request %s on %s%n%s",
                 request.url(), chain.connection(), request.headers()));
 
         Response response = chain.proceed(request);
         
         long t2 = System.nanoTime();
-        System.out.println(String.format("Received response for %s in %.1fms%n%s",
+        LOGGER.info(String.format("Received response for %s in %.1fms%n%s",
                 response.request().url(), (t2 - t1) / 1e6d, response.headers()));
 
         return response;
@@ -67,6 +73,8 @@ class LoggingInterceptor implements Interceptor {
 
 
 class PrintingEventListener extends EventListener {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PrintingEventListener.class);
+
     private long callStartNanos;
 
     private void printEvent(String name) {
@@ -75,7 +83,7 @@ class PrintingEventListener extends EventListener {
             callStartNanos = nowNanos;
         }
         long elapsedNanos = nowNanos - callStartNanos;
-        System.out.printf("%.3f %s%n", elapsedNanos / 1000000000d, name);
+        LOGGER.warn(String.format("%.3f %s", elapsedNanos / 1000000000d, name));
     }
 
     @Override public void callStart(Call call) {
@@ -123,7 +131,7 @@ class PrintingEventListener extends EventListener {
 
     @Override public void connectionAcquired(Call call, Connection connection) {
         printEvent("connectionAcquired");
-        System.out.println(System.identityHashCode(connection));
+        LOGGER.info("Connection hash " + System.identityHashCode(connection));
     }
 
     @Override public void connectionReleased(Call call, Connection connection) {

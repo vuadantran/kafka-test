@@ -1,5 +1,6 @@
 package org.example;
 
+import com.fts.common.extensions.producer.DefaultProducerCallBackOnError;
 import com.fts.common.extensions.producer.KafkaProducer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -9,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.NestedCheckedException;
+import org.springframework.core.NestedRuntimeException;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
@@ -23,6 +26,7 @@ import org.springframework.util.concurrent.ListenableFuture;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 
 @Configuration
@@ -54,9 +58,17 @@ public class KafkaProcessing {
     }
 
     public boolean sendSyncMessageV2(List<KafkaMessage> msgs) {
-        return kafkaProducer.sendMessageFullSync(kafkaTemplate, msgs);
+        return kafkaProducer.sendMessageFullSync(kafkaTemplate, msgs, new ThrowAbleKafka());
     }
 
     public void send(String msg) {
+    }
+
+    class ThrowAbleKafka implements Consumer<Throwable> {
+
+        @Override
+        public void accept(Throwable throwable) {
+            throw new RuntimeException("HI", new InterruptedException("ThrowAbleKafka eeeeeeeeeeeeeeeeeeee"));
+        }
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,12 +32,17 @@ public class KafkaProducerConfig {
                 StringSerializer.class);
         configProps.put(
                 ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-                StringSerializer.class);
+                JsonSerializer.class);
+        configProps.put(ProducerConfig.LINGER_MS_CONFIG, "10000");
+        configProps.put(ProducerConfig.BATCH_SIZE_CONFIG, "1000000");
+//        configProps.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, 5_000);
         return new DefaultKafkaProducerFactory<>(configProps);
     }
 
     @Bean
-    public KafkaTemplate<String, String> kafkaTemplate() {
-        return new KafkaTemplate<>(producerFactory());
+    public KafkaTemplate<String, KafkaMessage> kafkaTemplate() {
+        KafkaTemplate tem = new KafkaTemplate<>(producerFactory());
+        tem.setDefaultTopic("test1");
+        return tem;
     }
 }

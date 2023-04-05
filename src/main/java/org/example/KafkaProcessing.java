@@ -58,7 +58,8 @@ public class KafkaProcessing {
     }
 
     public boolean sendSyncMessageV2(List<KafkaMessage> msgs) {
-        return kafkaProducer.sendMessageFullSync(kafkaTemplate, msgs, new ThrowAbleKafka());
+//        return kafkaProducer.sendMessageFullSync(kafkaTemplate, msgs, new ThrowAbleKafka());
+        return true;
     }
 
     public void send(String msg) {

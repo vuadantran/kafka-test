@@ -46,5 +46,89 @@
             <artifactId>jcabi-log</artifactId>
             <version>0.17.1</version>
         </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>com.datadoghq</groupId>-->
+<!--            <artifactId>datadog-api-client</artifactId>-->
+<!--            <version>2.10.0</version>-->
+<!--        </dependency>-->
+        <!-- https://mvnrepository.com/artifact/com.datadoghq/dd-trace-api -->
+        <dependency>
+            <groupId>com.datadoghq</groupId>
+            <artifactId>dd-trace-api</artifactId>
+            <version>1.11.2</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/io.opentracing/opentracing-api -->
+        <dependency>
+            <groupId>io.opentracing</groupId>
+            <artifactId>opentracing-api</artifactId>
+            <version>0.33.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/io.opentracing/opentracing-util -->
+        <dependency>
+            <groupId>io.opentracing</groupId>
+            <artifactId>opentracing-util</artifactId>
+            <version>0.33.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.datadoghq</groupId>
+            <artifactId>datadog-api-client</artifactId>
+            <version>2.0.0</version>
+            <scope>compile</scope>
+        </dependency>
+
     </dependencies>
+
+    <build>
+
+        <plugins>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <finalName>test-${pom.artifactId}</finalName>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>org.datacho.DogRun</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+
+
+    </build>
 </project>

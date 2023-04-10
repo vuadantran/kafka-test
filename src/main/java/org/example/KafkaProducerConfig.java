@@ -1,7 +1,9 @@
 package org.example;
 
+import com.fts.common.extensions.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.datacho.PostCreateUserMsg;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,9 +42,22 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, KafkaMessage> kafkaTemplate() {
+    public KafkaProducer kafkaProducer() {
+        return new KafkaProducer(null);
+    }
+
+//    @Bean
+//    public KafkaTemplate<String, KafkaMessage> kafkaTemplate() {
+//        KafkaTemplate tem = new KafkaTemplate<>(producerFactory());
+//        tem.setDefaultTopic("test1");
+//        return tem;
+//    }
+
+    @Bean
+    public KafkaTemplate<String, PostCreateUserMsg> kafkaTemplate() {
         KafkaTemplate tem = new KafkaTemplate<>(producerFactory());
-        tem.setDefaultTopic("test1");
+        tem.setDefaultTopic("KZ_IozfUpCreateNodeWalletTopic");
         return tem;
     }
+
 }
